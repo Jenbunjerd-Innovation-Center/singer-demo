@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QC Management</title>
+    <link rel="stylesheet" href="../style/basic.css">
+</head>
+<body>
+    <!-- Top Section -->
+    <div class="top-section">
+        <h1>QC Management</h1>
+        <button onclick="location.href='main_page.php'">Back</button>
+    </div>
+
+    <!-- Content Section -->
+    <div class="content">
+        <!-- Left Section with Buttons -->
+        <div class="left-section">
+            <table>
+                <tr>
+                    <td><button onclick="location.href='qc_new_song.php'">New Song</button></td>
+                    <td><button onclick="location.href='qc_manage.php?type=location'">Location</button></td>
+                </tr>
+                <tr>
+                    <td><button onclick="location.href='recover.php'">Recover</button></td>
+                    <td><button onclick="location.href='qc_manage.php?type=cause'">Cause</button></td>
+                </tr>
+                <tr>
+                    <td><button onclick="location.href='scoring.php'">Scoring</button></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Right Section with Image -->
+        <div class="right-section">
+            <img src="../pic/pao_1.webp" alt="Pao Image">
+        </div>
+    </div>
+</body>
+</html>

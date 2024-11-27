@@ -1,0 +1,40 @@
+<?php session_start(); ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notice</title>
+    <link rel="stylesheet" href="../style/basic.css">
+</head>
+<body>
+    <div class="top-section">
+        <h2>Notice</h2>
+        <button onclick="location.href='main_page.php'">Back</button>
+    </div>
+
+    <div class="content">
+        <div class="left-section">
+            <h3>Notifications</h3>
+            <p id="noticeContent">Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        // Load notifications from file
+        fetch('../announce.txt')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('No announcement');
+                }
+                return response.text();
+            })
+            .then(text => {
+                document.getElementById('noticeContent').innerText = text;
+            })
+            .catch(() => {
+                document.getElementById('noticeContent').innerText = 'No notification';
+            });
+    </script>
+</body>
+</html>

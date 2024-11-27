@@ -1,0 +1,196 @@
+/* General Styling */
+body {
+    background-image: url('../pic/band_1.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Top Section */
+.top-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 80%;
+    margin-top: 20px;
+}
+
+.top-left {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+}
+
+.top-right {
+    text-align: right;
+    flex-grow: 1; /* Push title to the right */
+}
+
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Content Layout */
+.content {
+    display: flex;
+    width: 80%;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.left-section {
+    flex: 2;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+.right-section {
+    width: 150px; /* Adjusted to twice the original size */
+    text-align: center;
+}
+
+.right-section img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* Sub-Div Layouts */
+.sub-div-top-left, .sub-div-top-right {
+    width: 48%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    color: white;
+}
+
+table th, table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+table th {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+table tr:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Textarea and Dropdown */
+textarea, select {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    font-size: 14px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+.pagination a {
+    margin: 0 5px;
+    padding: 5px 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+.pagination a:hover {
+    background-color: #4CAF50;
+}
+.pagination a.active {
+    background-color: #4CAF50;
+    font-weight: bold;
+}
+
+
+/* Dropdown Styling */
+.select-short {
+    width: auto;
+    max-width: 200px; /* Adjust as needed */
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    font-size: 14px;
+}
+
+/* Small Buttons */
+.small-button {
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.small-button:hover {
+    background-color: #45a049;
+}
+
+button:disabled {
+    background-color: grey;
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.small-button:disabled {
+    background-color: grey;
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.dropdown-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.short-dropdown {
+    width: 200px; /* Adjust width as necessary */
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 5px;
+}

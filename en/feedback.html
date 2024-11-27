@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback</title>
+    <link rel="stylesheet" href="../style/basic.css">
+    <script>
+        function confirmSave() {
+            const name = document.getElementById('reporter_name').value.trim();
+            const detail = document.getElementById('detail').value.trim();
+
+            if (!name || !detail) {
+                alert("Both name and detail are required.");
+                return;
+            }
+
+            if (confirm(`Do you want to save the feedback?\n\nName: ${name}\nDetail: ${detail}`)) {
+                fetch('save_feedback.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, detail })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Feedback saved successfully.");
+                        location.href = 'main_page.php'; // Redirect to main page
+                    } else {
+                        alert("Error saving feedback: " + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An unexpected error occurred.");
+                });
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- Top Section -->
+    <div class="top-section">
+        <h2>Feedback</h2>
+        <div>
+            <button onclick="location.href='main_page.php'">Back</button>
+            <button onclick="confirmSave()">Save</button>
+        </div>
+    </div>
+
+    <!-- Content Layout -->
+    <div class="content">
+        <!-- Left Section -->
+        <div class="left-section">
+            <input type="text" id="reporter_name" placeholder="Reporter Name" required><br><br>
+            <textarea id="detail" placeholder="Detail" required></textarea>
+        </div>
+
+        <!-- Right Section -->
+        <div class="right-section">
+            <img src="../pic/sri_whistle.png" alt="Whistle">
+        </div>
+    </div>
+</body>
+</html>

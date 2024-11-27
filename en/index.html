@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        /* General styling */
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            height: 100vh;
+        }
+
+        /* Container styling */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Above Section styling */
+        .above {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 20px;
+            background-color: #111;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .left, .right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .left {
+            align-items: flex-start;
+            padding-right: 10px;
+        }
+        .right {
+            align-items: flex-end;
+            padding-left: 10px;
+        }
+
+        /* Logo and Slogan styling */
+        .logo {
+            max-width: 200px;
+            margin-bottom: 20px;
+        }
+        .slogan {
+            max-width: 300px;
+            margin: 10px 0;
+        }
+
+        /* Form styling */
+        form {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        h2 {
+            font-size: 24px;
+            color: #f1f1f1;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* Button styling */
+        .button-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        button {
+            padding: 8px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Disabled Forgot Password link styling */
+        .forgot-link {
+            color: #555;
+            text-decoration: none;
+            pointer-events: none;
+            margin-left: 10px;
+        }
+
+        /* Below Section styling */
+        .below {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Above Section -->
+        <div class="above">
+            <!-- Left Column -->
+            <div class="left">
+                <img src="../pic/singer_logo1.webp" alt="Singer Logo" class="logo">
+                <img src="../pic/singer_slogan_th.png" alt="Singer Slogan Thai" class="slogan">
+            </div>
+
+            <!-- Right Column -->
+            <div class="right">
+                <h2>Login</h2>
+                <form id="loginForm" action="login.php" method="POST">
+                    <label for="account">Account:</label>
+                    <input type="text" id="account" name="account" required>
+
+                    <label for="user">User:</label>
+                    <input type="text" id="user" name="user" required>
+
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+
+                    <div class="button-group">
+                        <button type="submit">Login</button>
+                        <span class="forgot-link">Forgot Password?</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Below Section (English Slogan) -->
+        <div class="below">
+            <img src="../pic/singer_slogan_eng.png" alt="Singer Slogan English" class="slogan">
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("loginForm").onsubmit = function() {
+            return confirm("Logging in...");
+        };
+    </script>
+</body>
+</html>
