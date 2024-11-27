@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ห้องควบคุมเพลงและดนตรี</title>
+    <link rel="stylesheet" href="../style/basic.css">
+</head>
+<body>
+    <!-- Top Section -->
+    <div class="top-section">
+        <h1>ห้องควบคุมเพลงและดนตรี</h1>
+        <button onclick="location.href='main_page.php'">ย้อนกลับ</button>
+    </div>
+
+    <!-- Content Section -->
+    <div class="content">
+        <!-- Left Section with Buttons -->
+        <div class="left-section">
+            <table>
+                <tr>
+                    <td><button onclick="location.href='qc_new_song.php'">เพลงใหม่</button></td>
+                    <td><button onclick="location.href='qc_manage.php?type=location'">สถานที่อัดเพลง</button></td>
+                </tr>
+                <tr>
+                    <td><button onclick="location.href='recover.php'">กู้คืนเพลง</button></td>
+                    <td><button onclick="location.href='qc_manage.php?type=cause'">สาเหตุ</button></td>
+                </tr>
+                <tr>
+                    <td><button onclick="location.href='scoring.php'">การให้คะแนน</button></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Right Section with Image -->
+        <div class="right-section">
+            <img src="../pic/pao_1.webp" alt="Pao Image">
+        </div>
+    </div>
+</body>
+</html>
