@@ -49,23 +49,26 @@ button:hover {
 /* Content Layout */
 .content {
     display: flex;
+    flex-direction: row;
     width: 80%;
     gap: 20px;
     margin-top: 20px;
 }
 
 .left-section {
-    flex: 2;
     background-color: rgba(0, 0, 0, 0.7);
     padding: 20px;
     border-radius: 10px;
     overflow-y: auto;
     max-height: 500px;
+    max-width: 80%;
+    flex: 80%;
 }
 
 .right-section {
     width: 150px; /* Adjusted to twice the original size */
     text-align: center;
+    flex: 20%;
 }
 
 .right-section img {
@@ -109,7 +112,7 @@ table tr:hover {
 
 /* Textarea and Dropdown */
 textarea, select {
-    width: 100%;
+    width: 90%;
     margin-bottom: 10px;
     padding: 10px;
     border: 1px solid #ccc;
@@ -193,4 +196,20 @@ button:disabled {
     padding: 5px;
     font-size: 14px;
     border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+    .content {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .left-section {
+      width: 100%;
+      max-width: 100%;
+    }
+    .right-section {
+      width: 60%;
+      margin-top: 20px;
+    }
 }
