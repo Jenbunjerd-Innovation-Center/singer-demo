@@ -12,7 +12,7 @@ if (!$account_id) {
 // Fetch status names
 $status_names = [];
 try {
-    $status_query = "SELECT id, name FROM status_name";
+    $status_query = "SELECT id, name FROM status";
     $stmt = $pdo->prepare($status_query);
     $stmt->execute();
     $status_results = $stmt->fetchAll(PDO::FETCH_ASSOC);

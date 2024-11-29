@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Step 2: Check if user exists within the account
-        $userCheckSql = "SELECT user_id, role, password, user_name FROM user WHERE account_id = ? AND user_name = ? AND status = 1";
+        $userCheckSql = "SELECT user_id, role, password, user_name, lang FROM user WHERE account_id = ? AND user_name = ? AND status = 1";
         $userStmt = $pdo->prepare($userCheckSql);
         $userStmt->execute([$account['account_id'], $userName]);
         $user = $userStmt->fetch(PDO::FETCH_ASSOC);
@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['role'] = $user['role'];
         $_SESSION['user_name'] = $user['user_name']; // Store the username in the session
         $_SESSION['account_id'] = $account['account_id']; // Store the account ID in the session
+        $_SESSION['lang'] = $user['lang']; // Store the language ID in the session
 
         // Log the login event with a formatted message
         $logMessage = "[Info] User ID {$user['user_id']} logged in";
@@ -60,3 +61,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 }
+?>
