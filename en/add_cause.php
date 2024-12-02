@@ -3,9 +3,28 @@ session_start();
 
 include("db_connection.php");
 
+// Fetch language code from the database
+$lang_code = 'eng'; // Default
+if (isset($_SESSION['lang'])) {
+    try {
+        $lang_query = "SELECT code FROM language WHERE id = :lang_id";
+        $lang_stmt = $pdo->prepare($lang_query);
+        $lang_stmt->bindParam(":lang_id", $_SESSION['lang'], PDO::PARAM_INT);
+        $lang_stmt->execute();
+        $lang_code = $lang_stmt->fetchColumn() ?: $lang_code;
+    } catch (PDOException $e) {
+        echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
+        exit();
+    }
+}
+
+// Load the language file
+$jsonPath = "../lang/$lang_code/add_cause.json";
+$lang = json_decode(file_get_contents($jsonPath), true);
+
 // Check if user is logged in and authorized
 if (!isset($_SESSION['user_id']) || !isset($_POST['case_id'])) {
-    echo "<script>alert('No case selected or unauthorized access. Redirecting to Cause Management.'); window.location.href = 'cause.php';</script>";
+    echo "<script>alert('" . $lang['unauthorized_access'] . "'); window.location.href = 'cause.php';</script>";
     exit();
 }
 
@@ -43,7 +62,7 @@ try {
     $song_query = "
         SELECT 
             c.case_title, 
-            COALESCE(u.user_name, 'The Mask Singer') AS user_name, 
+            COALESCE(u.user_name, '" . $lang['default_user'] . "') AS user_name, 
             c.place, 
             c.status, 
             c.detail, 
@@ -57,7 +76,7 @@ try {
     $song = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$song) {
-        throw new Exception("Song case not found.");
+        throw new Exception($lang['case_not_found']);
     }
 } catch (PDOException $e) {
     echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
@@ -80,12 +99,11 @@ try {
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Add Cause</title>
+    <title><?= $lang['title'] ?></title>
     <link rel="stylesheet" href="../style/basic.css">
     <script>
         function updateCause() {
@@ -93,7 +111,7 @@ try {
             const textInput = document.getElementById("customCause").value.trim();
 
             if (!dropdown && !textInput) {
-                alert("Please select or enter a cause.");
+                alert("<?= $lang['cause_required'] ?>");
                 return;
             }
 
@@ -112,81 +130,73 @@ try {
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert("Cause updated successfully!");
+                    alert("<?= $lang['success_message'] ?>");
                     window.location.href = "cause.php";
                 } else {
-                    alert("Error: " + (result.error || "Unknown error"));
+                    alert("<?= $lang['error_message'] ?>" + (result.error || "<?= $lang['unknown_error'] ?>"));
                 }
             })
             .catch(error => {
-                alert("An error occurred: " + error.message);
+                alert("<?= $lang['error_occurred'] ?>" + error.message);
             });
         }
     </script>
 </head>
 <body>
     <div class="top-section">
-        <h2>Add Cause</h2>
-        <button onclick="location.href='cause.php'">Back</button>
+        <h2><?= $lang['title'] ?></h2>
+        <button onclick="location.href='cause.php'"><?= $lang['back_button'] ?></button>
     </div>
 
     <div class="content">
-        <!-- Left Section -->
         <div class="left-section">
-            <!-- Cause Selection -->
             <div class="input-group">
-                <label for="causeDropdown">Select Cause:</label>
-                <select id="causeDropdown">
-                    <option value="">Select cause</option>
+                <label for="causeDropdown"><?= $lang['select_cause'] ?>:</label>
+                <select id="causeDropdown" class="short-dropdown">
+                    <option value=""><?= $lang['select_cause_placeholder'] ?></option>
                     <?php foreach ($causes as $cause): ?>
                         <option value="<?= htmlspecialchars($cause['cause']) ?>"><?= htmlspecialchars($cause['cause']) ?></option>
                     <?php endforeach; ?>
                 </select>
-            </div>
-
-            <div class="input-group">
-                <label for="customCause">Or Enter Cause:</label>
-                <input type="text" id="customCause" placeholder="Enter cause">
+                <label for="customCause"><?= $lang['or_enter_cause'] ?></label>
+                <input type="text" id="customCause" placeholder="<?= $lang['enter_cause_placeholder'] ?>">
             </div>
 
             <div class="button-group">
-                <button onclick="updateCause()">Confirm</button>
+                <button onclick="updateCause()"><?= $lang['confirm_button'] ?></button>
             </div>
 
-            <!-- Case Details -->
             <div class="case-details">
-                <h3>Case Details</h3>
-                <p><strong>Title:</strong> <?= htmlspecialchars($song['case_title']) ?></p>
-                <p><strong>User:</strong> <?= htmlspecialchars($song['user_name']) ?></p>
-                <p><strong>Place:</strong> <?= htmlspecialchars($song['place']) ?></p>
-                <p><strong>Status:</strong> <?= htmlspecialchars($song['status']) ?></p>
+                <h3><?= $lang['case_details'] ?></h3>
+                <p><strong><?= $lang['case_title'] ?>:</strong> <?= htmlspecialchars($song['case_title']) ?></p>
+                <p><strong><?= $lang['user_name'] ?>:</strong> <?= htmlspecialchars($song['user_name']) ?></p>
+                <p><strong><?= $lang['place'] ?>:</strong> <?= htmlspecialchars($song['place']) ?></p>
 
                 <table>
                     <tr>
-                        <th>State</th>
-                        <th>Date</th>
-                        <th>Detail</th>
-                        <th>Attached</th>
+                        <th><?= $lang['state'] ?></th>
+                        <th><?= $lang['date'] ?></th>
+                        <th><?= $lang['detail'] ?></th>
+                        <th><?= $lang['attached'] ?></th>
                     </tr>
                     <tr>
                         <td>Create</td>
                         <td><?= htmlspecialchars($song['created_date']) ?></td>
                         <td><?= htmlspecialchars($song['detail']) ?></td>
-                        <td><button disabled>Picture</button> <button disabled>File</button></td>
+                        <td><button disabled><?= $lang['picture'] ?></button> <button disabled><?= $lang['file'] ?></button></td>
                     </tr>
                     <?php foreach ($updates as $update): ?>
                         <tr>
                             <td>Update <?= htmlspecialchars($update['update_no']) ?></td>
                             <td><?= htmlspecialchars($update['date']) ?></td>
                             <td><?= htmlspecialchars($update['update_detail']) ?></td>
-                            <td><button disabled>Picture</button> <button disabled>File</button></td>
+                            <td><button disabled><?= $lang['picture'] ?></button> <button disabled><?= $lang['file'] ?></button></td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
             </div>
         </div>
 
-        <!-- Right Section -->
         <div class="right-section">
             <img src="../pic/chuch_2.webp" alt="Chuch Image">
         </div>

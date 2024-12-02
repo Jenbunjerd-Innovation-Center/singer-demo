@@ -1,0 +1,15 @@
+{
+    "title": "Feedback",
+    "error_required": "Both name and detail are required.",
+    "confirm_save": "Do you want to save the feedback?",
+    "label_name": "Name",
+    "label_detail": "Detail",
+    "success_save": "Feedback saved successfully.",
+    "error_save": "Error saving feedback:",
+    "error_unexpected": "An unexpected error occurred.",
+    "button_back": "Back",
+    "button_save": "Save",
+    "placeholder_name": "Reporter Name",
+    "placeholder_detail": "Detail",
+    "button_file": "File Upload"
+}

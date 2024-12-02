@@ -2,6 +2,31 @@
 session_start();
 include("db_connection.php");
 
+
+// Fetch language code from database using session variable
+$lang_code = $_SESSION['lang'] ?? 'en';
+try {
+    $lang_query = "SELECT code FROM language WHERE id = :lang_id";
+    $stmt = $pdo->prepare($lang_query);
+    $stmt->bindParam(":lang_id", $lang_code, PDO::PARAM_INT);
+    $stmt->execute();
+    $lang_code = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    die("Database error: " . $e->getMessage());
+}
+
+// Load language JSON file
+$json_path = "../lang/{$lang_code}/top_style.json";
+if (!file_exists($json_path)) {
+    die("Translation file not found: {$json_path}");
+}
+$translations = json_decode(file_get_contents($json_path), true);
+
+
+
+
+
+
 // Check if the user is logged in and has an account ID
 $account_id = $_SESSION['account_id'] ?? null;
 if (!$account_id) {
@@ -28,8 +53,9 @@ $selected_month = $_GET['month_year'] ?? $month_years[0];
 $by_status = [];
 try {
     $query = "
-        SELECT c.status, COUNT(*) AS song_qty
+        SELECT s.name AS status_name, COUNT(*) AS song_qty
         FROM song_case c
+        JOIN status s ON c.status = s.id
         WHERE c.account_id = :account_id 
         AND DATE_FORMAT(c.created_at, '%Y-%m') = :selected_month
         AND c.status NOT IN (4, 5)
@@ -60,12 +86,13 @@ try {
     exit();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Style Report</title>
+    <title><?= htmlspecialchars($translations['title'] ?? 'Top Style Report') ?></title>
     <link rel="stylesheet" href="../style/basic.css">
     <script>
         function updateTable() {
@@ -78,17 +105,11 @@ try {
     <!-- Top Section -->
     <div class="top-section">
         <div class="top-left">
-            <h2>Top Style Report</h2>
+            <h2><?= htmlspecialchars($translations['title'] ?? 'Top Style Report') ?></h2>
         </div>
         <div class="top-right">
-            <button onclick="location.href='report.html'">Back</button>
-            <select id="monthDropdown" class="short-dropdown" onchange="updateTable()">
-                <?php foreach ($month_years as $month): ?>
-                    <option value="<?= htmlspecialchars($month) ?>" <?= $selected_month === $month ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($month) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <button onclick="location.href='report.php'"><?= htmlspecialchars($translations['button_back'] ?? 'Back') ?></button>
+
         </div>
     </div>
 
@@ -96,32 +117,40 @@ try {
     <div class="content">
         <!-- Left Section -->
         <div class="left-section">
+            <select id="monthDropdown" class="short-dropdown" onchange="updateTable()">
+                <?php foreach ($month_years as $month): ?>
+                    <option value="<?= htmlspecialchars($month) ?>" <?= $selected_month === $month ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($month) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
             <!-- By Status Table -->
-            <h3>By Status</h3>
+            <h3><?= htmlspecialchars($translations['table_status_title'] ?? 'By Status') ?></h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Status</th>
-                        <th>Song Quantity</th>
+                        <th><?= htmlspecialchars($translations['table_status_column_status'] ?? 'Status') ?></th>
+                        <th><?= htmlspecialchars($translations['table_status_column_qty'] ?? 'Song Quantity') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($by_status as $status): ?>
                         <tr>
-                            <td><?= htmlspecialchars($status['status']) ?></td>
+                            <td><?= htmlspecialchars($status['status_name']) ?></td>
                             <td><?= htmlspecialchars($status['song_qty']) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
 
+
             <!-- By Location Table -->
-            <h3>By Location</h3>
+            <h3><?= htmlspecialchars($translations['table_location_title'] ?? 'By Location') ?></h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Location</th>
-                        <th>Song Quantity</th>
+                        <th><?= htmlspecialchars($translations['table_location_column_location'] ?? 'Location') ?></th>
+                        <th><?= htmlspecialchars($translations['table_location_column_qty'] ?? 'Song Quantity') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -137,8 +166,8 @@ try {
 
         <!-- Right Section -->
         <div class="right-section">
-            <img src="../pic/sri_cry_1.png" alt="Sri Cry 1">
-            <img src="../pic/chuch_4.webp" alt="Chuch 4">
+            <img src="../pic/sri_cry_1.png" alt="<?= htmlspecialchars($translations['image_alt_cry'] ?? 'Sri Cry 1') ?>">
+            <img src="../pic/chuch_4.webp" alt="<?= htmlspecialchars($translations['image_alt_chuch'] ?? 'Chuch 4') ?>">
         </div>
     </div>
 </body>

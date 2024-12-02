@@ -77,9 +77,9 @@ if (file_exists($json_file)) {
         <div class="left-section">
             <p><button id="singerButton" onclick="location.href='singer.php'"><?php echo $static_text['singer']; ?></button></p>
             <p><button id="fixerButton" onclick="location.href='fixer.php'"><?php echo $static_text['fixer']; ?></button></p>
-            <p><button id="qcButton" onclick="location.href='qc.html'"><?php echo $static_text['qc']; ?></button></p>
+            <p><button id="qcButton" onclick="location.href='qc.php'"><?php echo $static_text['qc']; ?></button></p>
             <p><button onclick="location.href='report.html'"><?php echo $static_text['report']; ?></button></p>
-            <p><button onclick="location.href='feedback.html'"><?php echo $static_text['feedback'] ; ?></button></p>
+            <p><button onclick="location.href='feedback.php'"><?php echo $static_text['feedback'] ; ?></button></p>
             <p><button onclick="location.href='logout.php'"><?php echo $static_text['logout']?></button></p>
         </div>
 

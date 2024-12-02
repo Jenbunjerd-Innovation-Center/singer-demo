@@ -131,7 +131,7 @@ try {
 <body>
     <div class="top-section">
         <h2>Location Management</h2>
-        <button onclick="location.href='qc.html'">Back</button>
+        <button onclick="location.href='qc.php'">Back</button>
     </div>
 
     <div class="content">

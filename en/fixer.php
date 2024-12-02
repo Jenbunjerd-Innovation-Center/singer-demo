@@ -22,6 +22,19 @@ try {
     exit();
 }
 
+// Fetch language code
+$lang_code = 'eng'; // Default language
+try {
+    $lang_query = "SELECT code FROM language WHERE id = (SELECT lang FROM user WHERE user_id = :user_id)";
+    $lang_stmt = $pdo->prepare($lang_query);
+    $lang_stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
+    $lang_stmt->execute();
+    $lang_code = $lang_stmt->fetchColumn() ?? $lang_code;
+} catch (PDOException $e) {
+    echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
+    exit();
+}
+
 // Fetch counts for different tasks
 $x = $y = $x2 = 0;
 
@@ -50,46 +63,48 @@ try {
     echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
     exit();
 }
+
+// Load language JSON file
+$jsonPath = "../lang/{$lang_code}/fixer.json";
+$lang = json_decode(file_get_contents($jsonPath), true);
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixer Page</title>
+    <title><?= htmlspecialchars($lang['title']); ?></title>
     <link rel="stylesheet" href="../style/basic.css">
 </head>
 <body>
 
     <!-- Top Section with Title and Back Button -->
     <div class="top-section">
-        <h2>Welcome to the Fixer Page</h2>
-        <button onclick="location.href='main_page.php'">Back</button>
+        <h2><?= htmlspecialchars($lang['welcome_message']); ?></h2>
+        <button onclick="location.href='main_page.php'"><?= htmlspecialchars($lang['back_button']); ?></button>
     </div>
 
     <!-- Bottom Section with Left, Middle, and Right Divs -->
     <div class="content">
         <!-- Left Section for Acknowledge Button and Count -->
         <div class="left-section">
-            <button onclick="location.href='song_ack.php'">Acknowledge</button>
-            <p><?= htmlspecialchars($x); ?> songs await</p>
+            <button onclick="location.href='song_ack.php'"><?= htmlspecialchars($lang['acknowledge_button']); ?></button>
+            <p><?= htmlspecialchars($x); ?> <?= htmlspecialchars($lang['songs_await']); ?></p>
         </div>
 
         <!-- Middle Section for Update Button, Root Cause Button, and Counts -->
         <div class="left-section">
-            <button onclick="location.href='song_update.php'">Update</button>
-            <p><?= htmlspecialchars($y); ?> songs await</p>
-            <button onclick="location.href='cause.php'">Root Cause</button>
-            <p><?= htmlspecialchars($x2); ?> songs await</p>
+            <button onclick="location.href='song_update.php'"><?= htmlspecialchars($lang['update_button']); ?></button>
+            <p><?= htmlspecialchars($y); ?> <?= htmlspecialchars($lang['songs_await']); ?></p>
+            <button onclick="location.href='cause.php'"><?= htmlspecialchars($lang['root_cause_button']); ?></button>
+            <p><?= htmlspecialchars($x2); ?> <?= htmlspecialchars($lang['songs_await']); ?></p>
         </div>
 
         <!-- Right Section for Images -->
         <div class="right-section">
-            <img src="../pic/chuch_logo_1.webp" alt="Chuch Logo">
-            <img src="../pic/chuch_instru.webp" alt="Chuch Instrument">
+            <img src="../pic/chuch_logo_1.webp" alt="<?= htmlspecialchars($lang['image_alt_logo']); ?>">
+            <img src="../pic/chuch_instru.webp" alt="<?= htmlspecialchars($lang['image_alt_instrument']); ?>">
         </div>
     </div>
 

@@ -10,6 +10,25 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
+// Fetch the language code
+$langCode = "eng"; // Default to English
+try {
+    $langQuery = "SELECT code FROM language WHERE id = :lang_id";
+    $langStmt = $pdo->prepare($langQuery);
+    $langStmt->bindParam(":lang_id", $_SESSION['lang'], PDO::PARAM_INT);
+    $langStmt->execute();
+    $langCode = $langStmt->fetchColumn() ?? "eng";
+} catch (PDOException $e) {
+    // Use default language if there's a database error
+}
+
+// Load translations from JSON
+$translations = [];
+$jsonPath = "../lang/{$langCode}/recover.json";
+if (file_exists($jsonPath)) {
+    $translations = json_decode(file_get_contents($jsonPath), true);
+}
+
 // Fetch account_id and case_recover from account based on user_id
 try {
     $account_query = "
@@ -22,7 +41,7 @@ try {
     $stmt->execute();
     $account = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$account) {
-        echo "<script>alert('Account not found.'); window.location.href = 'qc.html';</script>";
+        echo "<script>alert('Unauthorized access.'); window.location.href = 'qc.php';</script>";
         exit();
     }
     $account_id = $account['account_id'];
@@ -58,13 +77,12 @@ try {
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recover Cases</title>
+    <title><?= htmlspecialchars($translations['page_title'] ?? 'Recover Cases') ?></title>
     <link rel="stylesheet" href="../style/basic.css">
     <script>
         function enableButtons() {
@@ -75,7 +93,7 @@ try {
         function recover() {
             const selectedCaseId = document.querySelector('input[name="songSelect"]:checked').value;
 
-            if (confirm("Are you sure you want to recover this case?")) {
+            if (confirm("<?= $translations['recover_confirm'] ?? 'Are you sure you want to recover this case?' ?>")) {
                 fetch("recover_case.php", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -84,10 +102,10 @@ try {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert("Case recovered successfully.");
+                        alert("<?= $translations['recover_success'] ?? 'Case recovered successfully.' ?>");
                         window.location.reload();
                     } else {
-                        alert("Failed to recover case. " + data.message);
+                        alert("<?= $translations['recover_fail'] ?? 'Failed to recover case.' ?> " + data.message);
                     }
                 });
             }
@@ -120,25 +138,24 @@ try {
 </head>
 <body>
     <div class="top-section">
-        <h2>Recover Cases</h2>
+        <h2><?= htmlspecialchars($translations['page_heading'] ?? 'Recover Cases') ?></h2>
         <div>
-            <button onclick="location.href='qc.html'">Back</button>
-            <button id="recoverButton" onclick="recover()" disabled>Recover</button>
-            <button id="viewButton" onclick="viewCase()" disabled>View</button>
+            <button onclick="location.href='qc.php'"><?= htmlspecialchars($translations['button_back'] ?? 'Back') ?></button>
+            <button id="recoverButton" onclick="recover()" disabled><?= htmlspecialchars($translations['button_recover'] ?? 'Recover') ?></button>
+            <button id="viewButton" onclick="viewCase()" disabled><?= htmlspecialchars($translations['button_view'] ?? 'View') ?></button>
         </div>
     </div>
 
     <div class="content">
-        <!-- Left Section -->
         <div class="left-section">
             <table>
                 <thead>
                     <tr>
-                        <th>Select</th>
-                        <th>Fixer Name</th>
-                        <th>Case Title</th>
-                        <th>Place</th>
-                        <th>Close Date</th>
+                        <th><?= htmlspecialchars($translations['table_select'] ?? 'Select') ?></th>
+                        <th><?= htmlspecialchars($translations['table_fixer_name'] ?? 'Fixer Name') ?></th>
+                        <th><?= htmlspecialchars($translations['table_case_title'] ?? 'Case Title') ?></th>
+                        <th><?= htmlspecialchars($translations['table_place'] ?? 'Place') ?></th>
+                        <th><?= htmlspecialchars($translations['table_close_date'] ?? 'Close Date') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -154,8 +171,6 @@ try {
                 </tbody>
             </table>
         </div>
-
-        <!-- Right Section -->
         <div class="right-section">
             <img src="../pic/pao_logo2.webp" alt="Pao Logo">
         </div>

@@ -1,0 +1,28 @@
+{
+    "title": "Add Cause",
+    "unauthorized_access": "No case selected or unauthorized access. Redirecting to Cause Management.",
+    "case_not_found": "Case not found.",
+    "select_cause": "Select Cause",
+    "select_cause_placeholder": "Select cause",
+    "or_enter_cause": "Or:",
+    "enter_cause_placeholder": "Enter cause",
+    "confirm_button": "Confirm",
+    "back_button": "Back",
+    "case_details": "Case Details",
+    "case_title": "Case Title",
+    "user_name": "User Name",
+    "place": "Place",
+    "cause_required": "Please select or enter a cause.",
+    "success_message": "Cause updated successfully!",
+    "error_message": "Error: ",
+    "unknown_error": "Unknown error occurred.",
+    "error_occurred": "An error occurred: ",
+    "default_user": "The Mask Singer",
+    "state": "State",
+    "date": "Date",
+    "detail": "Detail",
+    "attached": "Attached",
+    "picture": "Picture",
+    "file": "File"
+}
+

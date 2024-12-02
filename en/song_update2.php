@@ -15,6 +15,27 @@ if (!$case_id) {
     exit();
 }
 
+// Fetch language code
+$lang_code = 'eng'; // Default language
+if (isset($_SESSION['lang'])) {
+    try {
+        $lang_query = "SELECT code FROM language WHERE id = :lang_id";
+        $lang_stmt = $pdo->prepare($lang_query);
+        $lang_stmt->bindParam(":lang_id", $_SESSION['lang'], PDO::PARAM_INT);
+        $lang_stmt->execute();
+        $lang_code = $lang_stmt->fetchColumn() ?: 'eng';
+    } catch (PDOException $e) {
+        // Default to 'eng' on error
+    }
+}
+
+// Load language file
+$lang_file = "../lang/$lang_code/song_update2.json";
+$translations = [];
+if (file_exists($lang_file)) {
+    $translations = json_decode(file_get_contents($lang_file), true);
+}
+
 // Fetch song case details and check if 'cause' is set
 $song = [];
 $enableCloseCase = false;
@@ -61,17 +82,23 @@ try {
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Song Update Details</title>
+    <title><?= htmlspecialchars($translations['title'] ?? 'Song Update Details') ?></title>
     <link rel="stylesheet" href="../style/basic.css">
     <script>
         function updateCase(status) {
             const detail = document.getElementById("newDetail").value;
+
+            // Check if the detail has a value
+            if (!detail) {
+                alert("<?= $translations['empty_detail'] ?? 'Please provide update details.' ?>");
+                return; // Exit the function
+            }
+
             const data = {
                 case_id: <?= json_encode($case_id) ?>,
                 update_no: <?= json_encode($x1) ?>,
@@ -89,77 +116,76 @@ try {
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    window.location.href = 'fixer.php';
+                    window.location.href = 'song_update2.php';
                 } else {
-                    alert("Error: " + result.error);
+                    alert("<?= $translations['error_prefix'] ?? 'Error:' ?> " + result.error);
                 }
             })
             .catch(error => {
-                alert("An error occurred: " + error.message);
+                alert("<?= $translations['error_general'] ?? 'An error occurred:' ?> " + error.message);
             });
         }
+        
     </script>
 </head>
 <body>
-
-    <!-- Top Section with Title and Back Button -->
     <div class="top-section">
-        <h2>Song Update - Case ID: <?= htmlspecialchars($song['case_title']); ?></h2>
-        <button onclick="location.href='song_update.php'">Back</button>
+        <h2><?= htmlspecialchars($translations['title'] ?? 'Song Update') ?> - <?= htmlspecialchars($song['case_title']); ?></h2>
+        <button onclick="location.href='song_update.php'"><?= htmlspecialchars($translations['back_button'] ?? 'Back') ?></button>
     </div>
 
-    <!-- Content Section -->
     <div class="content">
-        <!-- Left Section for Case Details and Buttons -->
         <div class="left-section">
-            <!-- Update Buttons in the Same Line -->
             <div class="button-row">
-                <button onclick="updateCase(2)">Update</button>
-                <button onclick="updateCase(3)" <?= $enableCloseCase ? '' : 'disabled' ?>>Update & Close Case</button>
+                <button onclick="updateCase(2)"><?= htmlspecialchars($translations['update_button'] ?? 'Update') ?></button>
+                <button onclick="updateCase(3)" <?= $enableCloseCase ? '' : 'disabled' ?>>
+                    <?= htmlspecialchars($translations['update_close_button'] ?? 'Update & Close Case') ?>
+                </button>
             </div>
-            <p><strong>User:</strong> <?= htmlspecialchars($song['user_name']) ?></p>
-            <p><strong>Title:</strong> <?= htmlspecialchars($song['case_title']) ?></p>
-            <p><strong>Place:</strong> <?= htmlspecialchars($song['place']) ?></p>
-            <p><strong>Created Date:</strong> <?= htmlspecialchars($song['created_date']) ?></p>
+            <p><strong><?= htmlspecialchars($translations['user_label'] ?? 'User:') ?></strong> <?= htmlspecialchars($song['user_name']) ?></p>
+            <p><strong><?= htmlspecialchars($translations['title_label'] ?? 'Title:') ?></strong> <?= htmlspecialchars($song['case_title']) ?></p>
+            <p><strong><?= htmlspecialchars($translations['place_label'] ?? 'Place:') ?></strong> <?= htmlspecialchars($song['place']) ?></p>
+            <p><strong><?= htmlspecialchars($translations['created_date_label'] ?? 'Created Date:') ?></strong> <?= htmlspecialchars($song['created_date']) ?></p>
 
-            <!-- Case Details Table -->
             <table>
                 <thead>
                     <tr>
-                        <th>State</th>
-                        <th>Date</th>
-                        <th>Detail</th>
-                        <th>Attached</th>
+                        <th><?= htmlspecialchars($translations['state_column'] ?? 'State') ?></th>
+                        <th><?= htmlspecialchars($translations['date_column'] ?? 'Date') ?></th>
+                        <th><?= htmlspecialchars($translations['detail_column'] ?? 'Detail') ?></th>
+                        <th><?= htmlspecialchars($translations['attachment_column'] ?? 'Attached') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Create</td>
+                        <td><?= htmlspecialchars($translations['create_label'] ?? 'Create') ?></td>
                         <td><?= htmlspecialchars($song['created_date']) ?></td>
                         <td><?= htmlspecialchars($song['detail']) ?></td>
-                        <td><button disabled>Picture</button> <button disabled>File</button></td>
+                        <td><button disabled><?= htmlspecialchars($translations['picture_button'] ?? 'Picture') ?></button>
+                            <button disabled><?= htmlspecialchars($translations['file_button'] ?? 'File') ?></button></td>
                     </tr>
                     <?php foreach ($updates as $update): ?>
                         <tr>
-                            <td>Update <?= htmlspecialchars($update['update_no']) ?></td>
+                            <td><?= htmlspecialchars($translations['update_label'] ?? 'Update') ?> <?= htmlspecialchars($update['update_no']) ?></td>
                             <td><?= htmlspecialchars($update['date']) ?></td>
                             <td><?= htmlspecialchars($update['update_detail']) ?></td>
-                            <td><button disabled>Picture</button> <button disabled>File</button></td>
+                            <td><button disabled><?= htmlspecialchars($translations['picture_button'] ?? 'Picture') ?></button>
+                                <button disabled><?= htmlspecialchars($translations['file_button'] ?? 'File') ?></button></td>
                         </tr>
                     <?php endforeach; ?>
                     <tr>
-                        <td>Update <?= htmlspecialchars($x1) ?></td>
+                        <td><?= htmlspecialchars($translations['update_label'] ?? 'Update') ?> <?= htmlspecialchars($x1) ?></td>
                         <td><?= date("Y-m-d") ?></td>
-                        <td><textarea id="newDetail"></textarea></td>
-                        <td><button disabled>Picture</button> <button disabled>File</button></td>
+                        <td><textarea id="newDetail" required></textarea></td>
+                        <td><button disabled><?= htmlspecialchars($translations['picture_button'] ?? 'Picture') ?></button>
+                            <button disabled><?= htmlspecialchars($translations['file_button'] ?? 'File') ?></button></td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- Right Section for Images -->
         <div class="right-section">
-            <img src="../pic/chuch_guita_1.webp" alt="Chuch Guitar">
+            <img src="../pic/chuch_guita_1.webp" alt="<?= htmlspecialchars($translations['image_alt'] ?? 'Chuch Guitar') ?>">
         </div>
     </div>
 </body>

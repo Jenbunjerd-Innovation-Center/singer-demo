@@ -8,6 +8,22 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
     exit();
 }
 
+// Fetch language code from the database
+$lang = $_SESSION['lang'];
+$lang_code_query = "SELECT code FROM language WHERE id = :lang";
+$lang_stmt = $pdo->prepare($lang_code_query);
+$lang_stmt->bindParam(":lang", $lang, PDO::PARAM_INT);
+$lang_stmt->execute();
+$lang_code = $lang_stmt->fetchColumn();
+$jsonPath = "../lang/$lang_code/cause.json";
+
+// Fetch the JSON content
+if (!file_exists($jsonPath)) {
+    echo "<script>alert('Language file not found.'); window.location.href = 'fixer.php';</script>";
+    exit();
+}
+$langData = json_decode(file_get_contents($jsonPath), true);
+
 $user_id = $_SESSION['user_id'];
 
 // Fetch song cases where cause is NULL and fixer_id is the current user
@@ -38,7 +54,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cause Management</title>
+    <title><?= htmlspecialchars($langData['title']); ?></title>
     <link rel="stylesheet" href="../style/basic.css">
     <script>
         function enableAddCauseButton() {
@@ -65,10 +81,10 @@ try {
 <body>
     <!-- Top Section with Title and Buttons -->
     <div class="top-section">
-        <h2>Cause Management</h2>
+        <h2><?= htmlspecialchars($langData['title']); ?></h2>
         <div class="button-group">
-            <button onclick="location.href='fixer.php'">Back</button>
-            <button id="addCauseButton" onclick="addCause()" disabled>Add Cause</button>
+            <button onclick="location.href='fixer.php'"><?= htmlspecialchars($langData['back_button']); ?></button>
+            <button id="addCauseButton" onclick="addCause()" disabled><?= htmlspecialchars($langData['add_cause_button']); ?></button>
         </div>
     </div>
 
@@ -76,14 +92,14 @@ try {
     <div class="content">
         <!-- Left Section for Song List -->
         <div class="left-section">
-            <h3>Pending Cause Songs</h3>
+            <h3><?= htmlspecialchars($langData['pending_songs']); ?></h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Select</th>
-                        <th>User Name</th>
-                        <th>Case Title</th>
-                        <th>Create Date</th>
+                        <th><?= htmlspecialchars($langData['select']); ?></th>
+                        <th><?= htmlspecialchars($langData['user_name']); ?></th>
+                        <th><?= htmlspecialchars($langData['case_title']); ?></th>
+                        <th><?= htmlspecialchars($langData['created_date']); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -101,7 +117,7 @@ try {
 
         <!-- Right Section for Image -->
         <div class="right-section">
-            <img src="../pic/chuch_1.webp" alt="Chuch Image">
+            <img src="../pic/chuch_1.webp" alt="<?= htmlspecialchars($langData['image_alt']); ?>">
         </div>
     </div>
 </body>

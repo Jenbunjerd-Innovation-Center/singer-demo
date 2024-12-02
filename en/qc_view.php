@@ -16,6 +16,26 @@ if (!$case_id) {
     exit();
 }
 
+// Fetch language code
+try {
+    $langQuery = "SELECT code FROM language WHERE id = :lang_id";
+    $langStmt = $pdo->prepare($langQuery);
+    $langStmt->bindParam(":lang_id", $_SESSION['lang'], PDO::PARAM_INT);
+    $langStmt->execute();
+    $langCode = $langStmt->fetchColumn();
+} catch (Exception $e) {
+    echo "<script>alert('Error fetching language.');</script>";
+    exit();
+}
+
+// Load translations
+$langFile = "../lang/$langCode/qc_view.json";
+if (file_exists($langFile)) {
+    $translations = json_decode(file_get_contents($langFile), true);
+} else {
+    $translations = [];
+}
+
 // Fetch song case details
 try {
     $case_query = "
@@ -35,7 +55,7 @@ try {
     $case = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$case) {
-        throw new Exception("Case not found.");
+        throw new Exception($translations['error_case_not_found'] ?? "Case not found.");
     }
 } catch (Exception $e) {
     echo "<script>alert('" . $e->getMessage() . "'); window.location.href = 'qc_new_song.php';</script>";
@@ -54,7 +74,7 @@ try {
     $stmt->execute();
     $updates = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
+    echo "<script>alert('" . ($translations['error_database'] ?? "Database error") . ": " . $e->getMessage() . "');</script>";
     exit();
 }
 
@@ -66,112 +86,97 @@ try {
     $stmt->execute();
     $fixers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
+    echo "<script>alert('" . ($translations['error_database'] ?? "Database error") . ": " . $e->getMessage() . "');</script>";
     exit();
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($langCode) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QC View</title>
+    <title><?= $translations['title'] ?? 'QC View' ?></title>
     <link rel="stylesheet" href="../style/basic.css">
     <script>
         function forceClose() {
             const reason = document.getElementById("forceCloseReason").value.trim();
             if (!reason) {
-                alert("Please provide a reason for force closing.");
+                alert("<?= $translations['error_force_close_reason'] ?? 'Please provide a reason for force closing.' ?>");
                 return;
             }
 
             fetch("force_close_case.php", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    case_id: <?= json_encode($case_id) ?>,
-                    force_reason: reason,
-                }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ case_id: <?= json_encode($case_id) ?>, force_reason: reason }),
             })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert("Case successfully force closed.");
+                    alert("<?= $translations['force_close_success'] ?? 'Case successfully force closed.' ?>");
                     window.location.href = "qc_new_song.php";
                 } else {
-                    alert("Error: " + result.error);
+                    alert("<?= $translations['error_prefix'] ?? 'Error:' ?> " + result.error);
                 }
             })
-            .catch(error => {
-                alert("An error occurred: " + error.message);
-            });
+            .catch(error => alert("<?= $translations['error_general'] ?? 'An error occurred:' ?> " + error.message));
         }
 
         function forceAcknowledge() {
             const fixer = document.getElementById("fixerDropdown").value;
             if (!fixer) {
-                alert("Please select a fixer.");
+                alert("<?= $translations['error_select_fixer'] ?? 'Please select a fixer.' ?>");
                 return;
             }
 
             fetch("force_acknowledge_case.php", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    case_id: <?= json_encode($case_id) ?>,
-                    fixer: fixer,
-                }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ case_id: <?= json_encode($case_id) ?>, fixer: fixer }),
             })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert("Case successfully force acknowledged.");
+                    alert("<?= $translations['force_acknowledge_success'] ?? 'Case successfully force acknowledged.' ?>");
                     window.location.href = "qc_new_song.php";
                 } else {
-                    alert("Error: " + result.error);
+                    alert("<?= $translations['error_prefix'] ?? 'Error:' ?> " + result.error);
                 }
             })
-            .catch(error => {
-                alert("An error occurred: " + error.message);
-            });
+            .catch(error => alert("<?= $translations['error_general'] ?? 'An error occurred:' ?> " + error.message));
         }
     </script>
 </head>
 <body>
-    <!-- Top Section -->
     <div class="top-section">
-        <h2>QC View</h2>
+        <h2><?= $translations['header'] ?? 'QC View' ?></h2>
         <div>
-            <button onclick="location.href='qc_new_song.php'">Back</button>
-            <button onclick="forceClose()">Force Close</button>
-            <button onclick="forceAcknowledge()">Force Acknowledge</button>
+            <button onclick="location.href='qc_new_song.php'"><?= $translations['back'] ?? 'Back' ?></button>
+            
+            
         </div>
     </div>
-
-    <!-- Content Layout -->
     <div class="content">
         <!-- Left Section -->
         <div class="left-section">
             <div class="sub-div-top">
                 <div class="sub-div-top-left">
-                    <p><strong>Case Title:</strong> <?= htmlspecialchars($case['case_title']) ?></p>
-                    <p><strong>User:</strong> <?= htmlspecialchars($case['user_name']) ?></p>
-                    <p><strong>Place:</strong> <?= htmlspecialchars($case['place']) ?></p>
-                    <p><strong>Status:</strong> <?= htmlspecialchars($case['status']) ?></p>
-                    <p><strong>Cause:</strong> <?= htmlspecialchars($case['cause'] ?? 'N/A') ?></p>
+                    <p><strong><?= $translations['case_title'] ?? 'Case Title:' ?></strong> <?= htmlspecialchars($case['case_title']) ?></p>
+                    <p><strong><?= $translations['user'] ?? 'User:' ?></strong> <?= htmlspecialchars($case['user_name']) ?></p>
+                    <p><strong><?= $translations['place'] ?? 'Place:' ?></strong> <?= htmlspecialchars($case['place']) ?></p>
+                    <p><strong><?= $translations['status'] ?? 'Status:' ?></strong> <?= htmlspecialchars($case['status']) ?></p>
+                    <p><strong><?= $translations['cause'] ?? 'Cause:' ?></strong> <?= htmlspecialchars($case['cause'] ?? $translations['not_applicable'] ?? 'N/A') ?></p>
                 </div>
                 <div class="sub-div-top-right">
-                    <textarea id="forceCloseReason" placeholder="Force close reason"></textarea>
-                    <select id="fixerDropdown">
-                        <option value="">Select Fixer</option>
+                    <textarea id="forceCloseReason" placeholder="<?= $translations['force_close_reason_placeholder'] ?? 'Force close reason' ?>"></textarea>
+                    <button onclick="forceClose()"><?= $translations['force_close'] ?? 'Force Close' ?></button><br><br>
+                    <select id="fixerDropdown" class="short-dropdown">
+                        <option value=""><?= $translations['select_fixer'] ?? 'Select Fixer' ?></option>
                         <?php foreach ($fixers as $fixer): ?>
                             <option value="<?= htmlspecialchars($fixer['user_id']) ?>"><?= htmlspecialchars($fixer['user_name']) ?></option>
                         <?php endforeach; ?>
                     </select>
+                    <button onclick="forceAcknowledge()"><?= $translations['force_acknowledge'] ?? 'Force Acknowledge' ?></button>
                 </div>
             </div>
 
@@ -179,25 +184,25 @@ try {
                 <table>
                     <thead>
                         <tr>
-                            <th>State</th>
-                            <th>Date</th>
-                            <th>Detail</th>
-                            <th>Attached</th>
+                            <th><?= $translations['state'] ?? 'State' ?></th>
+                            <th><?= $translations['date'] ?? 'Date' ?></th>
+                            <th><?= $translations['detail'] ?? 'Detail' ?></th>
+                            <th><?= $translations['attached'] ?? 'Attached' ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Create</td>
+                            <td><?= $translations['create'] ?? 'Create' ?></td>
                             <td><?= htmlspecialchars($case['created_date']) ?></td>
                             <td><?= htmlspecialchars($case['detail']) ?></td>
-                            <td><button disabled>Picture</button> <button disabled>File</button></td>
+                            <td><button disabled><?= $translations['picture'] ?? 'Picture' ?></button> <button disabled><?= $translations['file'] ?? 'File' ?></button></td>
                         </tr>
                         <?php foreach ($updates as $update): ?>
                             <tr>
-                                <td>Update <?= htmlspecialchars($update['update_no']) ?></td>
+                                <td><?= $translations['update'] ?? 'Update' ?> <?= htmlspecialchars($update['update_no']) ?></td>
                                 <td><?= htmlspecialchars($update['date']) ?></td>
                                 <td><?= htmlspecialchars($update['update_detail']) ?></td>
-                                <td><button disabled>Picture</button> <button disabled>File</button></td>
+                                <td><button disabled><?= $translations['picture'] ?? 'Picture' ?></button> <button disabled><?= $translations['file'] ?? 'File' ?></button></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -207,8 +212,9 @@ try {
 
         <!-- Right Section -->
         <div class="right-section">
-            <img src="../pic/pao_mas2.webp" alt="Pao Image">
+            <img src="../pic/pao_mas2.webp" alt="<?= $translations['image_alt'] ?? 'Pao Image' ?>">
         </div>
     </div>
+
 </body>
 </html>

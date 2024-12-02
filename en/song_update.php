@@ -8,7 +8,25 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
+// Fetch language code
+$lang = $_SESSION['lang'];
+try {
+    $langQuery = "SELECT code FROM language WHERE id = :lang_id";
+    $langStmt = $pdo->prepare($langQuery);
+    $langStmt->bindParam(":lang_id", $lang, PDO::PARAM_INT);
+    $langStmt->execute();
+    $langCode = $langStmt->fetchColumn();
+} catch (PDOException $e) {
+    echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
+    exit();
+}
+
+// Load language JSON file
+$jsonPath = "../lang/{$langCode}/song_update.json";
+$langData = [];
+if (file_exists($jsonPath)) {
+    $langData = json_decode(file_get_contents($jsonPath), true);
+}
 
 // Fetch list of songs assigned to the user (fixer) with status 1 or 2
 $songs = [];
@@ -24,7 +42,7 @@ try {
         WHERE c.fixer = :user_id AND c.status IN (1, 2)
         ORDER BY c.created_at ASC";
     $song_stmt = $pdo->prepare($song_query);
-    $song_stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
+    $song_stmt->bindParam(":user_id", $_SESSION['user_id'], PDO::PARAM_INT);
     $song_stmt->execute();
     $songs = $song_stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -38,7 +56,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Song Update</title>
+    <title><?= htmlspecialchars($langData['title'] ?? 'Song Update') ?></title>
     <link rel="stylesheet" href="../style/basic.css">
     <script>
         function enableViewButton() {
@@ -68,11 +86,11 @@ try {
     <!-- Top Section with Title, Back, and View Button -->
     <div class="top-section">
         <div class="top-left">
-            <h2>Song Update</h2>
+            <h2><?= htmlspecialchars($langData['heading'] ?? 'Song Update') ?></h2>
         </div>
         <div class="top-right">
-            <button onclick="location.href='fixer.php'">Back</button>
-            <button id="viewButton" onclick="goToSongUpdate2()" disabled>View</button>
+            <button onclick="location.href='fixer.php'"><?= htmlspecialchars($langData['back_button'] ?? 'Back') ?></button>
+            <button id="viewButton" onclick="goToSongUpdate2()" disabled><?= htmlspecialchars($langData['view_button'] ?? 'View') ?></button>
         </div>
     </div>
 
@@ -84,16 +102,16 @@ try {
                 <thead>
                     <tr>
                         <th></th>
-                        <th>User</th>
-                        <th>Title</th>
-                        <th>Place</th>
-                        <th>Created Date</th>
+                        <th><?= htmlspecialchars($langData['user_column'] ?? 'User') ?></th>
+                        <th><?= htmlspecialchars($langData['title_column'] ?? 'Title') ?></th>
+                        <th><?= htmlspecialchars($langData['place_column'] ?? 'Place') ?></th>
+                        <th><?= htmlspecialchars($langData['created_date_column'] ?? 'Created Date') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($songs as $song): ?>
                         <tr>
-                            <td><input type="radio" name="songSelect" value="<?= $song['case_id'] ?>" onchange="enableViewButton()"></td>
+                            <td><input type="radio" name="songSelect" value="<?= htmlspecialchars($song['case_id']) ?>" onchange="enableViewButton()"></td>
                             <td><?= htmlspecialchars($song['user_name']) ?></td>
                             <td><?= htmlspecialchars($song['case_title']) ?></td>
                             <td><?= htmlspecialchars($song['place']) ?></td>
@@ -106,7 +124,7 @@ try {
 
         <!-- Right Section for Image -->
         <div class="right-section">
-            <img src="../pic/chuch_2.webp" alt="Chuch Image">
+            <img src="../pic/chuch_2.webp" alt="<?= htmlspecialchars($langData['image_alt'] ?? 'Chuch Image') ?>">
         </div>
     </div>
 </body>

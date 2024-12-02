@@ -1,0 +1,21 @@
+{
+    "page_title": "New Song Case",
+    "back_button": "Back",
+    "case_title": "Case Title",
+    "placeholder_title": "Enter case title",
+    "location": "Location",
+    "select_location": "Select a location",
+    "or": "Or",
+    "placeholder_location": "Enter location",
+    "detail": "Detail",
+    "placeholder_detail": "Enter details here",
+    "mask_toggle": "Singer Mask ",
+    "dynamic_image_alt": "Singer Logo",
+    "submit_button": "Submit",
+    "success_message": "New song case created successfully!",
+    "error_title_required": "Case title is required.",
+    "error_location_required": "Please select or enter a location.",
+    "error_detail_required": "Detail is required.",
+    "error_generic": "Error",
+    "error_unknown": "Unknown error occurred."
+}

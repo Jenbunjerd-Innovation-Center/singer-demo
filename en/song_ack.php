@@ -17,6 +17,13 @@ try {
     $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
     $stmt->execute();
     $account_id = $stmt->fetchColumn();
+
+    // Fetch user's language code
+    $lang_query = "SELECT code FROM language WHERE id = (SELECT lang FROM user WHERE user_id = :user_id)";
+    $lang_stmt = $pdo->prepare($lang_query);
+    $lang_stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
+    $lang_stmt->execute();
+    $lang_code = $lang_stmt->fetchColumn();
 } catch (PDOException $e) {
     echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
     exit();
@@ -44,25 +51,29 @@ try {
     echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
     exit();
 }
+
+// Load the language JSON file
+$lang_path = "../lang/$lang_code/song_ack.json";
+$lang = json_decode(file_get_contents($lang_path), true);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($lang_code) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acknowledge Song Cases</title>
+    <title><?= htmlspecialchars($lang['title']) ?></title>
     <link rel="stylesheet" href="../style/basic.css">
 </head>
 <body>
     <!-- Top Section -->
     <div class="top-section">
         <div class="top-left">
-            <h2>Acknowledge Song Cases</h2>
+            <h2><?= htmlspecialchars($lang['heading']) ?></h2>
         </div>
         <div class="top-right">
-            <button onclick="location.href='fixer.php'">Back</button>
-            <button id="viewButton" onclick="acknowledgeSong()" disabled>Acknowledge</button>
+            <button onclick="location.href='fixer.php'"><?= htmlspecialchars($lang['back_button']) ?></button>
+            <button id="viewButton" onclick="acknowledgeSong()" disabled><?= htmlspecialchars($lang['acknowledge_button']) ?></button>
         </div>
     </div>
 
@@ -74,11 +85,11 @@ try {
                 <thead>
                     <tr>
                         <th></th>
-                        <th>User</th>
-                        <th>Title</th>
-                        <th>Detail</th>
-                        <th>Place</th>
-                        <th>Created Date</th>
+                        <th><?= htmlspecialchars($lang['user_column']) ?></th>
+                        <th><?= htmlspecialchars($lang['title_column']) ?></th>
+                        <th><?= htmlspecialchars($lang['detail_column']) ?></th>
+                        <th><?= htmlspecialchars($lang['place_column']) ?></th>
+                        <th><?= htmlspecialchars($lang['created_date_column']) ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -98,7 +109,7 @@ try {
 
         <!-- Right Section with Image -->
         <div class="right-section">
-            <img src="../pic/chuch_1.webp" alt="Chuch Image">
+            <img src="../pic/chuch_1.webp" alt="<?= htmlspecialchars($lang['image_alt']) ?>">
         </div>
     </div>
 
@@ -110,7 +121,7 @@ try {
         function acknowledgeSong() {
             const selectedCaseId = document.querySelector('input[name="songSelect"]:checked');
             if (!selectedCaseId) {
-                alert("Please select a song to acknowledge.");
+                alert("<?= htmlspecialchars($lang['select_alert']) ?>");
                 return;
             }
 
@@ -122,13 +133,13 @@ try {
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert("Song acknowledged successfully.");
+                    alert("<?= htmlspecialchars($lang['success_message']) ?>");
                     location.reload();
                 } else {
-                    alert("Error: " + result.error);
+                    alert("<?= htmlspecialchars($lang['error_message']) ?>" + result.error);
                 }
             })
-            .catch(error => alert("An error occurred: " + error.message));
+            .catch(error => alert("<?= htmlspecialchars($lang['error_message']) ?>" + error.message));
         }
     </script>
 </body>

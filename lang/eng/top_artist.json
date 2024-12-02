@@ -1,0 +1,18 @@
+{
+    "title": "Top Artist Report",
+    "button_back": "Back",
+    "label_month": "Monthy",
+    "label_view": "View",
+    "option_vocalist": "Vocalist",
+    "option_guitarist": "Guitarist",
+    "header_vocalist": "Top Vocalists",
+    "header_guitarist": "Top Guitarists",
+    "column_vocalist_name": "Vocalist Name",
+    "column_guitarist_name": "Guitarist Name",
+    "column_total_score": "Total Score",
+    "column_total_song": "Total Songs",
+    "column_total_closed": "Total Closed Songs",
+    "column_avg_accept_days": "Avg. Accept Days",
+    "column_avg_close_days": "Avg. Close Days",
+    "error_unauthorized": "Unauthorized access. Redirecting to the main page."
+}

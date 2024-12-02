@@ -2,6 +2,16 @@
 session_start();
 include("db_connection.php");
 
+// Load language settings
+$lang_id = $_SESSION['lang'];
+$lang_query = "SELECT code FROM language WHERE id = :lang_id";
+$lang_stmt = $pdo->prepare($lang_query);
+$lang_stmt->bindParam(':lang_id', $lang_id, PDO::PARAM_INT);
+$lang_stmt->execute();
+$lang_code = $lang_stmt->fetchColumn();
+$json_path = "../lang/{$lang_code}/qc_manage.json";
+$translations = json_decode(file_get_contents($json_path), true);
+
 // Get table-specific settings
 $type = $_GET['type'] ?? 'location';
 $table_settings = [
@@ -9,20 +19,20 @@ $table_settings = [
         'table_name' => 'location',
         'field_name' => 'loc_name',
         'id_name' => 'loc_id',
-        'title' => 'Location Management',
+        'title' => $translations['location_management'],
         'image' => '../pic/pao_mas1.webp'
     ],
     'cause' => [
         'table_name' => 'cause',
         'field_name' => 'cause',
         'id_name' => 'id',
-        'title' => 'Cause Management',
+        'title' => $translations['cause_management'],
         'image' => '../pic/pao_mas1.webp'
     ]
 ];
 
 if (!array_key_exists($type, $table_settings)) {
-    echo "<script>alert('Invalid type.'); window.location.href = 'main_page.php';</script>";
+    echo "<script>alert('{$translations['invalid_type']}'); window.location.href = 'main_page.php';</script>";
     exit();
 }
 
@@ -35,7 +45,7 @@ $image = $settings['image'];
 
 // Check if user is logged in and authorized
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] < 3) {
-    echo "<script>alert('Unauthorized access. Redirecting to main page.'); window.location.href = 'main_page.php';</script>";
+    echo "<script>alert('{$translations['unauthorized_access']}'); window.location.href = 'main_page.php';</script>";
     exit();
 }
 
@@ -49,7 +59,7 @@ try {
     $stmt->execute();
     $account_id = $stmt->fetchColumn();
 } catch (PDOException $e) {
-    echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
+    echo "<script>alert('{$translations['db_error']}: " . $e->getMessage() . "');</script>";
     exit();
 }
 
@@ -61,11 +71,10 @@ try {
     $stmt->execute();
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
+    echo "<script>alert('{$translations['db_error']}: " . $e->getMessage() . "');</script>";
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,14 +86,14 @@ try {
         function confirmEdit(id, oldName) {
             const newName = document.getElementById(`field_${id}`).value.trim();
             if (!newName) {
-                alert("Name cannot be blank.");
+                alert("<?= $translations['name_blank'] ?>");
                 return;
             }
             if (newName === oldName) {
-                alert("No changes detected.");
+                alert("<?= $translations['no_changes'] ?>");
                 return;
             }
-            if (confirm(`Do you want to rename "${oldName}" to "${newName}"?`)) {
+            if (confirm(`<?= $translations['rename_prompt'] ?> "${oldName}" to "${newName}"?`)) {
                 fetch('update_common.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -93,17 +102,17 @@ try {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert("Updated successfully.");
+                        alert("<?= $translations['updated_success'] ?>");
                         location.reload();
                     } else {
-                        alert("Error: " + data.error);
+                        alert("<?= $translations['error'] ?>: " + data.error);
                     }
                 });
             }
         }
 
         function confirmDelete(id, name) {
-            if (confirm(`Do you want to delete "${name}"?`)) {
+            if (confirm(`<?= $translations['delete_prompt'] ?> "${name}"?`)) {
                 fetch('update_common.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -112,10 +121,10 @@ try {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert("Deleted successfully.");
+                        alert("<?= $translations['deleted_success'] ?>");
                         location.reload();
                     } else {
-                        alert("Error: " + data.error);
+                        alert("<?= $translations['error'] ?>: " + data.error);
                     }
                 });
             }
@@ -124,10 +133,10 @@ try {
         function confirmAdd() {
             const newName = document.getElementById('new_name').value.trim();
             if (!newName) {
-                alert("Name cannot be blank.");
+                alert("<?= $translations['name_blank'] ?>");
                 return;
             }
-            if (confirm(`Do you want to add "${newName}"?`)) {
+            if (confirm(`<?= $translations['add_prompt'] ?> "${newName}"?`)) {
                 fetch('update_common.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -136,10 +145,10 @@ try {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert("Added successfully.");
+                        alert("<?= $translations['added_success'] ?>");
                         location.reload();
                     } else {
-                        alert("Error: " + data.error);
+                        alert("<?= $translations['error'] ?>: " + data.error);
                     }
                 });
             }
@@ -149,36 +158,32 @@ try {
 <body>
     <div class="top-section">
         <h2><?= htmlspecialchars($title) ?></h2>
-        <button onclick="location.href='qc.html'">Back</button>
+        <button onclick="location.href='qc.php'"><?= $translations['back'] ?></button>
     </div>
-
     <div class="content">
-        <!-- Left Section -->
         <div class="left-section">
             <table>
                 <tr>
-                    <th>Name</th>
-                    <th>Actions</th>
+                    <th><?= $translations['name'] ?></th>
+                    <th><?= $translations['actions'] ?></th>
                 </tr>
                 <?php foreach ($rows as $row): ?>
                     <tr>
                         <td><input type="text" id="field_<?= $row['id'] ?>" value="<?= htmlspecialchars($row['name']) ?>"></td>
                         <td>
-                            <button class="small-button" onclick="confirmEdit(<?= $row['id'] ?>, '<?= htmlspecialchars($row['name']) ?>')">Edit</button>
-                            <button class="small-button" onclick="confirmDelete(<?= $row['id'] ?>, '<?= htmlspecialchars($row['name']) ?>')">Delete</button>
+                            <button class="small-button" onclick="confirmEdit(<?= $row['id'] ?>, '<?= htmlspecialchars($row['name']) ?>')"><?= $translations['edit'] ?></button>
+                            <button class="small-button" onclick="confirmDelete(<?= $row['id'] ?>, '<?= htmlspecialchars($row['name']) ?>')"><?= $translations['delete'] ?></button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
                 <tr>
-                    <td><input type="text" id="new_name" placeholder="New Name"></td>
-                    <td><button class="small-button" onclick="confirmAdd()">Add</button></td>
+                    <td><input type="text" id="new_name" placeholder="<?= $translations['new_name_placeholder'] ?>"></td>
+                    <td><button class="small-button" onclick="confirmAdd()"><?= $translations['add'] ?></button></td>
                 </tr>
             </table>
         </div>
-
-        <!-- Right Section -->
         <div class="right-section">
-            <img src="<?= htmlspecialchars($image) ?>" alt="Image">
+            <img src="<?= htmlspecialchars($image) ?>" alt="<?= $translations['image_alt'] ?>">
         </div>
     </div>
 </body>

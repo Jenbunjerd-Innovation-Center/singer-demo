@@ -1,0 +1,11 @@
+{
+    "title": "Fixer Page",
+    "welcome_message": "Welcome to the Fixer Page",
+    "back_button": "Back",
+    "acknowledge_button": "Acknowledge",
+    "update_button": "Update",
+    "root_cause_button": "Root Cause",
+    "songs_await": "songs await",
+    "image_alt_logo": "Chuch Logo",
+    "image_alt_instrument": "Chuch Instrument"
+}

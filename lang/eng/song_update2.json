@@ -1,0 +1,21 @@
+{
+    "title": "Song Update Details",
+    "back_button": "Back",
+    "update_button": "Update",
+    "update_close_button": "Update & Close Case",
+    "user_label": "User:",
+    "title_label": "Title:",
+    "place_label": "Place:",
+    "created_date_label": "Created Date:",
+    "state_column": "State",
+    "date_column": "Date",
+    "detail_column": "Detail",
+    "attachment_column": "Attached",
+    "create_label": "Create",
+    "update_label": "Update",
+    "picture_button": "Picture",
+    "file_button": "File",
+    "error_prefix": "Error:",
+    "error_general": "An error occurred:",
+    "image_alt": "Chuch Guitar"
+}

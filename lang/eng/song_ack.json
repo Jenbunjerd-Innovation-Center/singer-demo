@@ -1,0 +1,15 @@
+{
+    "title": "Acknowledge Song Cases",
+    "heading": "Acknowledge Song Cases",
+    "back_button": "Back",
+    "acknowledge_button": "Acknowledge",
+    "user_column": "User",
+    "title_column": "Title",
+    "detail_column": "Detail",
+    "place_column": "Place",
+    "created_date_column": "Created Date",
+    "image_alt": "Chuch Image",
+    "select_alert": "Please select a song to acknowledge.",
+    "success_message": "Song acknowledged successfully.",
+    "error_message": "An error occurred: "
+}

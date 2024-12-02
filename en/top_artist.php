@@ -2,6 +2,21 @@
 session_start();
 include("db_connection.php");
 
+
+// Fetch language code from the database
+$lang_code = $_SESSION['lang'] ?? 'en';
+$lang_query = "SELECT code FROM language WHERE id = :lang_id";
+$lang_stmt = $pdo->prepare($lang_query);
+$lang_stmt->execute([':lang_id' => $lang_code]);
+$lang_code = $lang_stmt->fetchColumn() ?? 'en';
+
+// Load translations from JSON file
+$json_path = "../lang/{$lang_code}/top_artist.json";
+if (!file_exists($json_path)) {
+    die("Translation file not found: {$json_path}");
+}
+$translations = json_decode(file_get_contents($json_path), true);
+
 // Check if the user is logged in and has an account ID
 $account_id = $_SESSION['account_id'] ?? null;
 if (!$account_id) {
@@ -68,13 +83,12 @@ if ($selected_view === 'vocalist') {
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($lang_code) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Artist Report</title>
+    <title><?= htmlspecialchars($translations['title']) ?></title>
     <link rel="stylesheet" href="../style/basic.css">
     <script>
         function updateTable() {
@@ -85,14 +99,18 @@ if ($selected_view === 'vocalist') {
     </script>
 </head>
 <body>
-    <!-- Top Section -->
     <div class="top-section">
         <div class="top-left">
-            <h2>Top Artist Report</h2>
+            <h2><?= htmlspecialchars($translations['title']) ?></h2>
         </div>
         <div class="top-right">
-            <button onclick="location.href='report.html'">Back</button>
-            <label for="monthDropdown">Month:</label>
+            <button onclick="location.href='report.html'"><?= htmlspecialchars($translations['button_back']) ?></button>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="left-section">
+            <label for="monthDropdown"><?= htmlspecialchars($translations['label_month']) ?>:</label>
             <select id="monthDropdown" class="short-dropdown" onchange="updateTable()">
                 <?php foreach ($month_years as $month): ?>
                     <option value="<?= htmlspecialchars($month) ?>" <?= $selected_month === $month ? 'selected' : '' ?>>
@@ -100,33 +118,26 @@ if ($selected_view === 'vocalist') {
                     </option>
                 <?php endforeach; ?>
             </select>
-            <label for="viewDropdown">View:</label>
+            <label for="viewDropdown"><?= htmlspecialchars($translations['label_view']) ?>:</label>
             <select id="viewDropdown" class="short-dropdown" onchange="updateTable()">
-                <option value="vocalist" <?= $selected_view === 'vocalist' ? 'selected' : '' ?>>Nong Sri</option>
-                <option value="guitarist" <?= $selected_view === 'guitarist' ? 'selected' : '' ?>>P' Chuch</option>
+                <option value="vocalist" <?= $selected_view === 'vocalist' ? 'selected' : '' ?>><?= htmlspecialchars($translations['option_vocalist']) ?></option>
+                <option value="guitarist" <?= $selected_view === 'guitarist' ? 'selected' : '' ?>><?= htmlspecialchars($translations['option_guitarist']) ?></option>
             </select>
-        </div>
-    </div>
-
-    <!-- Content Section -->
-    <div class="content">
-        <!-- Left Section -->
-        <div class="left-section">
-            <h3><?= $selected_view === 'vocalist' ? 'Top Vocalist' : 'Top Guitarist' ?></h3>
+            <h3><?= $selected_view === 'vocalist' ? htmlspecialchars($translations['header_vocalist']) : htmlspecialchars($translations['header_guitarist']) ?></h3>
             <table>
                 <thead>
                     <tr>
                         <?php if ($selected_view === 'vocalist'): ?>
-                            <th>User Name</th>
-                            <th>Total Score</th>
-                            <th>Total Songs</th>
+                            <th><?= htmlspecialchars($translations['column_vocalist_name']) ?></th>
+                            <th><?= htmlspecialchars($translations['column_total_score']) ?></th>
+                            <th><?= htmlspecialchars($translations['column_total_song']) ?></th>
                         <?php else: ?>
-                            <th>Fixer Name</th>
-                            <th>Total Score</th>
-                            <th>Total Songs</th>
-                            <th>Total Closed Songs</th>
-                            <th>Avg Accept Date (days)</th>
-                            <th>Avg Close Date (days)</th>
+                            <th><?= htmlspecialchars($translations['column_guitarist_name']) ?></th>
+                            <th><?= htmlspecialchars($translations['column_total_score']) ?></th>
+                            <th><?= htmlspecialchars($translations['column_total_song']) ?></th>
+                            <th><?= htmlspecialchars($translations['column_total_closed']) ?></th>
+                            <th><?= htmlspecialchars($translations['column_avg_accept_days']) ?></th>
+                            <th><?= htmlspecialchars($translations['column_avg_close_days']) ?></th>
                         <?php endif; ?>
                     </tr>
                 </thead>
@@ -151,7 +162,6 @@ if ($selected_view === 'vocalist') {
             </table>
         </div>
 
-        <!-- Right Section -->
         <div class="right-section">
             <img src="../pic/sri_1.png" alt="Sri 1">
             <img src="../pic/chuch_1.webp" alt="Chuch 1">

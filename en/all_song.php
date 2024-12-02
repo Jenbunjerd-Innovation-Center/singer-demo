@@ -2,6 +2,36 @@
 session_start();
 include("db_connection.php");
 
+// Get language code from the session and fetch translations
+$lang_id = $_SESSION['lang'] ?? null;
+if (!$lang_id) {
+    die("Language ID not set in session.");
+}
+
+try {
+    // Fetch the language code from the database
+    $lang_query = "SELECT code FROM language WHERE id = :lang_id";
+    $stmt = $pdo->prepare($lang_query);
+    $stmt->bindParam(':lang_id', $lang_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $lang_code = $stmt->fetchColumn();
+
+    if (!$lang_code) {
+        die("Language code not found for ID {$lang_id}.");
+    }
+} catch (PDOException $e) {
+    die("Database error: " . $e->getMessage());
+}
+
+// Load the JSON translation file
+$json_path = "../lang/{$lang_code}/all_song.json";
+if (!file_exists($json_path)) {
+    die("Translation file not found: " . $json_path);
+}
+
+$translations = json_decode(file_get_contents($json_path), true);
+
+
 // Check if the user is logged in and has an account ID
 $account_id = $_SESSION['account_id'] ?? null;
 if (!$account_id) {
@@ -99,12 +129,13 @@ try {
 }
 ?>
 
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($lang_code) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Songs</title>
+    <title><?= htmlspecialchars($translations['page_title'] ?? 'All Songs') ?></title>
     <link rel="stylesheet" href="../style/basic.css">
     <script>
         function applyFilters() {
@@ -127,7 +158,7 @@ try {
                 document.getElementById('selectedCaseId').value = selectedSong.value;
                 document.getElementById('viewForm').submit();
             } else {
-                alert('Please select a song to view.');
+                alert('<?= $translations['select_song_alert'] ?? 'Please select a song to view.' ?>');
             }
         }
 
@@ -139,11 +170,11 @@ try {
 </head>
 <body>
     <div class="top-section">
-        <h2>All Songs</h2>
+        <h2><?= htmlspecialchars($translations['page_header'] ?? 'All Songs') ?></h2>
         <div>
-            <button onclick="location.href='report.html'">Back</button>
-            <button id="viewButton" onclick="viewSong()" disabled>View</button>
-            <button onclick="toggleFilter()">Toggle Filter</button>
+            <button onclick="location.href='report.php'"><?= htmlspecialchars($translations['button_back'] ?? 'Back') ?></button>
+            <button id="viewButton" onclick="viewSong()" disabled><?= htmlspecialchars($translations['button_view'] ?? 'View') ?></button>
+            <button onclick="toggleFilter()"><?= htmlspecialchars($translations['button_toggle_filter'] ?? 'Toggle Filter') ?></button>
         </div>
     </div>
 
@@ -156,46 +187,50 @@ try {
         <div class="left-section">
             <div id="filterDiv" style="display: none;">
                 <form id="filterForm" method="GET">
-                    <label for="song_group">Song Group:</label>
+                    <label for="song_group"><?= htmlspecialchars($translations['filter_song_group'] ?? 'Song Group:') ?></label>
                     <select name="song_group" id="song_group">
-                        <option value="new_release" <?= $song_group === 'new_release' ? 'selected' : '' ?>>New Release</option>
-                        <option value="all_songs" <?= $song_group === 'all_songs' ? 'selected' : '' ?>>All Songs</option>
+                        <option value="new_release" <?= $song_group === 'new_release' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($translations['song_group_new_release'] ?? 'New Release') ?>
+                        </option>
+                        <option value="all_songs" <?= $song_group === 'all_songs' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($translations['song_group_all_songs'] ?? 'All Songs') ?>
+                        </option>
                     </select><br>
 
-                    <label for="case_title">Case Title:</label>
+                    <label for="case_title"><?= htmlspecialchars($translations['filter_case_title'] ?? 'Case Title:') ?></label>
                     <input type="text" name="case_title" value="<?= htmlspecialchars($case_title) ?>"><br>
 
-                    <label for="user_name">User Name:</label>
+                    <label for="user_name"><?= htmlspecialchars($translations['filter_user_name'] ?? 'User Name:') ?></label>
                     <input type="text" name="user_name" value="<?= htmlspecialchars($user_name) ?>"><br>
 
-                    <label for="location">Location:</label>
+                    <label for="location"><?= htmlspecialchars($translations['filter_location'] ?? 'Location:') ?></label>
                     <input type="text" name="location" value="<?= htmlspecialchars($location) ?>"><br>
 
-                    <label for="fixer_name">Fixer Name:</label>
+                    <label for="fixer_name"><?= htmlspecialchars($translations['filter_fixer_name'] ?? 'Fixer Name:') ?></label>
                     <input type="text" name="fixer_name" value="<?= htmlspecialchars($fixer_name) ?>"><br>
 
-                    <label for="create_date">Create Date:</label>
+                    <label for="create_date"><?= htmlspecialchars($translations['filter_create_date'] ?? 'Create Date:') ?></label>
                     <input type="date" name="create_date" value="<?= htmlspecialchars($create_date) ?>"><br>
 
-                    <label for="close_date">Close Date:</label>
+                    <label for="close_date"><?= htmlspecialchars($translations['filter_close_date'] ?? 'Close Date:') ?></label>
                     <input type="date" name="close_date" value="<?= htmlspecialchars($close_date) ?>"><br>
 
-                    <button type="button" onclick="applyFilters()">Filter</button>
-                    <button type="button" onclick="clearFilters()">Clear Filter</button>
+                    <button type="button" onclick="applyFilters()"><?= htmlspecialchars($translations['button_filter'] ?? 'Filter') ?></button>
+                    <button type="button" onclick="clearFilters()"><?= htmlspecialchars($translations['button_clear_filter'] ?? 'Clear Filter') ?></button>
                 </form>
             </div>
 
             <table>
                 <thead>
                     <tr>
-                        <th>Select</th>
-                        <th>User Name</th>
-                        <th>Fixer Name</th>
-                        <th>Case Title</th>
-                        <th>Place</th>
-                        <th>Status</th>
-                        <th>Create Date</th>
-                        <th>Close Date</th>
+                        <th><?= htmlspecialchars($translations['column_select'] ?? 'Select') ?></th>
+                        <th><?= htmlspecialchars($translations['column_user_name'] ?? 'User Name') ?></th>
+                        <th><?= htmlspecialchars($translations['column_fixer_name'] ?? 'Fixer Name') ?></th>
+                        <th><?= htmlspecialchars($translations['column_case_title'] ?? 'Case Title') ?></th>
+                        <th><?= htmlspecialchars($translations['column_place'] ?? 'Place') ?></th>
+                        <th><?= htmlspecialchars($translations['column_status'] ?? 'Status') ?></th>
+                        <th><?= htmlspecialchars($translations['column_create_date'] ?? 'Create Date') ?></th>
+                        <th><?= htmlspecialchars($translations['column_close_date'] ?? 'Close Date') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -206,7 +241,7 @@ try {
                             <td><?= htmlspecialchars($song['fixer_name']) ?></td>
                             <td><?= htmlspecialchars($song['case_title']) ?></td>
                             <td><?= htmlspecialchars($song['place']) ?></td>
-                            <td><?= htmlspecialchars($status_names[$song['status']] ?? 'Unknown') ?></td>
+                            <td><?= htmlspecialchars($status_names[$song['status']] ?? $translations['status_unknown'] ?? 'Unknown') ?></td>
                             <td><?= htmlspecialchars($song['created_date']) ?></td>
                             <td><?= htmlspecialchars($song['close_date']) ?></td>
                         </tr>
@@ -216,8 +251,8 @@ try {
         </div>
 
         <div class="right-section">
-            <img src="../pic/sri_3.png" alt="Sri 3">
-            <img src="../pic/sri_4.png" alt="Sri 4">
+            <img src="../pic/sri_3.png" alt="<?= htmlspecialchars($translations['alt_image_1'] ?? 'Image 1') ?>">
+            <img src="../pic/sri_4.png" alt="<?= htmlspecialchars($translations['alt_image_2'] ?? 'Image 2') ?>">
         </div>
     </div>
 </body>

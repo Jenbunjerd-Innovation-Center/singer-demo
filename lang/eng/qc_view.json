@@ -1,0 +1,35 @@
+{
+    "title": "QC View",
+    "header": "QC View",
+    "back": "Back",
+    "force_close": "Force Close",
+    "force_acknowledge": "Force Acknowledge",
+    "error_force_close_reason": "Please provide a reason for force closing.",
+    "force_close_success": "Case successfully force closed.",
+    "error_select_fixer": "Please select a fixer.",
+    "force_acknowledge_success": "Case successfully force acknowledged.",
+    "error_prefix": "Error:",
+    "error_general": "An error occurred:",
+    "error_case_not_found": "Case not found.",
+    "error_database": "Database error",
+
+    "case_title": "Case Title:",
+    "user": "User:",
+    "place": "Place:",
+    "status": "Status:",
+    "cause": "Cause:",
+    "not_applicable": "N/A",
+    "force_close_reason_placeholder": "Force close reason",
+    "select_fixer": "Select Fixer",
+    "state": "State",
+    "date": "Date",
+    "detail": "Detail",
+    "attached": "Attached",
+    "create": "Create",
+    "update": "Update",
+    "picture": "Picture",
+    "file": "File",
+    "image_alt": "Pao Image"
+
+        
+}

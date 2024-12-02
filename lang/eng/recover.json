@@ -1,0 +1,16 @@
+{
+    "page_title": "Recover Cases",
+    "page_heading": "Recover Cases",
+    "button_back": "Back",
+    "button_recover": "Recover",
+    "button_view": "View",
+    "table_select": "Select",
+    "table_fixer_name": "Fixer Name",
+    "table_case_title": "Case Title",
+    "table_place": "Placebo",
+    "table_close_date": "Close Date",
+    "recover_confirm": "Are you sure you want to recover this case?",
+    "recover_success": "Case recovered successfully.",
+    "recover_fail": "Failed to recover case.",
+    "account_not_found": "Account not found."
+}

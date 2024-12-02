@@ -1,0 +1,14 @@
+{
+    "title": "All Songs",
+    "unauthorized_access": "Unauthorized access. Redirecting to main page.",
+    "database_error": "Database error",
+    "mask_singer": "The Mask Singer2",
+    "unknown": "Unknown",
+    "back_button": "Back",
+    "view_button": "View",
+    "toggle_filter": "Toggle Filter",
+    "select_song_alert": "Please select a song to view.",
+    "song_group": "Song Group",
+    "new_release": "New Release",
+    "all_songs": "All Songs"
+}

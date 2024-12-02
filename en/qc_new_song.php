@@ -4,7 +4,7 @@ include("db_connection.php");
 
 // Check if user is logged in and authorized
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] < 3) {
-    echo "<script>alert('You are not authorized to access this page. Redirecting to the QC Management page.'); window.location.href = 'qc.html';</script>";
+    echo "<script>alert('You are not authorized to access this page. Redirecting to the QC Management page.'); window.location.href = 'qc.php';</script>";
     exit();
 }
 
@@ -20,6 +20,26 @@ try {
 } catch (PDOException $e) {
     echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
     exit();
+}
+
+// Fetch language code for the session
+$lang_code = 'eng'; // Default language
+try {
+    $lang_query = "SELECT code FROM language WHERE id = :lang_id";
+    $lang_stmt = $pdo->prepare($lang_query);
+    $lang_stmt->bindParam(":lang_id", $_SESSION['lang'], PDO::PARAM_INT);
+    $lang_stmt->execute();
+    $lang_code = $lang_stmt->fetchColumn();
+} catch (PDOException $e) {
+    echo "<script>alert('Database error: " . $e->getMessage() . "');</script>";
+    exit();
+}
+
+// Load translations
+$jsonPath = "../lang/$lang_code/qc_new_song.json";
+$translations = [];
+if (file_exists($jsonPath)) {
+    $translations = json_decode(file_get_contents($jsonPath), true);
 }
 
 // Fetch list of songs
@@ -50,7 +70,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QC New Song</title>
+    <title><?= $translations['title'] ?? 'QC New Song' ?></title>
     <link rel="stylesheet" href="../style/basic.css">
     <script>
         function enableViewButton() {
@@ -73,17 +93,17 @@ try {
                 document.body.appendChild(form);
                 form.submit();
             } else {
-                alert("Please select a song to view.");
+                alert("<?= $translations['select_song'] ?? 'Please select a song to view.' ?>");
             }
         }
     </script>
 </head>
 <body>
     <div class="top-section">
-        <h1>QC New Song</h1>
+        <h1><?= $translations['header'] ?? 'QC New Song' ?></h1>
         <div>
-            <button onclick="location.href='qc.html'">Back</button>
-            <button id="viewButton" onclick="viewSong()" disabled>View</button>
+            <button onclick="location.href='qc.php'"><?= $translations['back'] ?? 'Back' ?></button>
+            <button id="viewButton" onclick="viewSong()" disabled><?= $translations['view'] ?? 'View' ?></button>
         </div>
     </div>
 
@@ -94,11 +114,11 @@ try {
                 <table>
                     <thead>
                         <tr>
-                            <th>Select</th>
-                            <th>User</th>
-                            <th>Title</th>
-                            <th>Place</th>
-                            <th>Created Date</th>
+                            <th><?= $translations['select'] ?? 'Select' ?></th>
+                            <th><?= $translations['user'] ?? 'User' ?></th>
+                            <th><?= $translations['title_column'] ?? 'Title' ?></th>
+                            <th><?= $translations['place'] ?? 'Place' ?></th>
+                            <th><?= $translations['created_date'] ?? 'Created Date' ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -118,7 +138,7 @@ try {
 
         <!-- Right Section -->
         <div class="right-section">
-            <img src="../pic/pao_2.webp" alt="Pao Image">
+            <img src="../pic/pao_2.webp" alt="<?= $translations['image_alt'] ?? 'Pao Image' ?>">
         </div>
     </div>
 </body>
